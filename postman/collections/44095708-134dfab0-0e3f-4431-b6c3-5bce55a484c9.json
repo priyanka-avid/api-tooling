@@ -1,0 +1,375 @@
+{
+	"info": {
+		"_postman_id": "44095708-134dfab0-0e3f-4431-b6c3-5bce55a484c9",
+		"name": "PM CTMS- Create Folder",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "MCS ROPC login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    ",
+							"    pm.response.to.have.status(200);",
+							"    ",
+							"    console.log(pm);",
+							"    console.log(pm.request);",
+							"    ",
+							"    });",
+							"",
+							"pm.test(\"Set Cookie\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.access_token).to.be.not.undefined;",
+							"    console.log(jsonData.access_token);",
+							"    let cookieVal = \"avidAccessToken=\" + jsonData.access_token;// + \"; path=/; domain=.mun-docker-ml.showroom.local;\"",
+							"    postman.setGlobalVariable(\"avidAccessToken\", jsonData.access_token);",
+							"    postman.setGlobalVariable(\"AvidCookie\", cookieVal);",
+							"    console.log(\"Storing cookie as global 'AvidCookie': \" + cookieVal);",
+							"});",
+							"",
+							"pm.globals.get(\"variable_key\");"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"id": "89ec90cd-5ace-4243-8db7-5a810bcf0328"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"    "
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"id": "c02bec4d-0352-45c4-b29c-74c821549933"
+					}
+				}
+			],
+			"id": "44095708-0146a440-b4a6-4f9b-b0c1-5e49123cfe4e",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					},
+					{
+						"key": "Forwarded",
+						"value": "host={{mcs_host}}"
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic Y29tLmF2aWQubWVkaWFjZW50cmFsY2xvdWQtYTk1YjNmOTM4NDk3NWE1MzVjZTAwNTMzMTUzMWY2ZmI6Yzg2M2JhNmM0ZTAzZDM1NWEzZDI5NjY0MWQ2NTY2ZWYzZTU0Y2ZiZTU1MzQ5NjliNWY3MmY1YmQ5NTZhNzE5MQ=="
+					},
+					{
+						"key": "context_id",
+						"value": "00000000-0000-4000-a000-000000000000"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "{{mcs_user}}",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "{{mcs_password}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "context_id_",
+							"value": "00000000-0000-4000-a000-000000000000",
+							"type": "text"
+						},
+						{
+							"key": "scope",
+							"value": "openid",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{mcs_identity_provider_url}}",
+					"host": [
+						"{{mcs_identity_provider_url}}"
+					]
+				},
+				"description": "MCS ROPC ldap login"
+			},
+			"response": []
+		},
+		{
+			"name": "avid.ctms.registry -> getServiceRoots -> set assetById from globalId Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"response is ok\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"systems insterplay-pam there\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.systems).to.be.not.undefined;",
+							"    pm.expect(jsonData.systems.filter(data => data.systemType == 'interplay-pam')[0].systemType).to.equal(\"interplay-pam\");",
+							"    let pamSystem = jsonData.systems.filter(data => (data.systemType == 'interplay-pam' && !data.origin  ) )[0];",
+							"    let systemID = pamSystem.systemID;",
+							"    let systemName = pamSystem.name;",
+							"    let systemAssetByIdHref = \"\";",
+							"    console.log(\"Storing pam 'systemID' as 'interplay_pam_systemID': \" + systemID );",
+							"",
+							"    let assetById = jsonData[\"resources\"][\"aa:asset-by-id\"];",
+							"    for (let i=0 ; i<assetById.length ; i++) {",
+							"        if (assetById[i].systems[0].systemType == \"interplay-pam\" && assetById[i].systems[0].origin == undefined) {",
+							"            systemAssetByIdHref = assetById[i].href;",
+							"            systemAssetByIdHref = systemAssetByIdHref.replace(\"{id}\", pm.environment.get(\"globalId\"));",
+							"        }",
+							"    }",
+							"",
+							"    console.log(\"Storing pam aa:asset-by-id href as 'interplay_pam_systemAssetByIdHref': \" + systemAssetByIdHref );",
+							"",
+							"    pm.globals.set(\"interplay_pam_systemID\", systemID);",
+							"    pm.globals.set(\"interplay_pam_host\", systemName);",
+							"",
+							"    pm.globals.set(\"interplay_pam_systemAssetByIdHref\", systemAssetByIdHref);",
+							"",
+							"    console.log(\"set mobId here for futher use...\");",
+							"    //pm.globals.set(\"mobId\", \"060a2b340101010101010f0013-000000-0f280f004fcf00de-060e2b347f7f-d080\")",
+							"",
+							"});",
+							"",
+							"",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"id": "059e8293-dd8b-45be-a008-01416cd9e590"
+					}
+				}
+			],
+			"id": "44095708-dc8041ec-6848-4caa-8b27-072e9d964408",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Cookie",
+						"value": "{{AvidCookie}}"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{Avid_OIDC_Token}}",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "https://{{mcs_host}}/apis/avid.ctms.registry;version=0;realm=global/serviceroots",
+					"protocol": "https",
+					"host": [
+						"{{mcs_host}}"
+					],
+					"path": [
+						"apis",
+						"avid.ctms.registry;version=0;realm=global",
+						"serviceroots"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Folder",
+			"id": "44095708-4507f93e-fcd2-4d7d-9ffa-e0a522849c20",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"common\": {\r\n        \"name\": \"New Folder\"\r\n    },\r\n    \"attributes\": [\r\n        {\r\n            \"name\": \"Comments\",\r\n            \"value\": \"example comment\",\r\n            \"type\": \"string\"\r\n        },\r\n        {\r\n            \"name\": \"com.avid.workgroup.Property.Category\",\r\n            \"value\": [\r\n                {\r\n                    \"index\": 0,\r\n                    \"value\": \"comedy\"\r\n                },\r\n                {\r\n                    \"index\": 1,\r\n                    \"value\": \"news\"\r\n                }\r\n            ],\r\n            \"type\": \"multiValue\"\r\n        }\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://mun-esx6-ux.global.avidww.com/pamctc/locations/items/%2FSent%20to%20Playback%2F?offset=0&limit=25",
+					"protocol": "https",
+					"host": [
+						"mun-esx6-ux",
+						"global",
+						"avidww",
+						"com"
+					],
+					"path": [
+						"pamctc",
+						"locations",
+						"items",
+						"%2FSent%20to%20Playback%2F"
+					],
+					"query": [
+						{
+							"key": "offset",
+							"value": "0"
+						},
+						{
+							"key": "limit",
+							"value": "25"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Folder Copy",
+			"id": "44095708-24930345-ef73-4929-abf3-8096be86715b",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"common\": {\r\n        \"name\": \"New Folder\"\r\n    },\r\n    \"attributes\": [\r\n        {\r\n            \"name\": \"Comments\",\r\n            \"value\": \"example comment\",\r\n            \"type\": \"string\"\r\n        },\r\n        {\r\n            \"name\": \"com.avid.workgroup.Property.Category\",\r\n            \"value\": [\r\n                {\r\n                    \"index\": 0,\r\n                    \"value\": \"comedy\"\r\n                },\r\n                {\r\n                    \"index\": 1,\r\n                    \"value\": \"news\"\r\n                }\r\n            ],\r\n            \"type\": \"multiValue\"\r\n        },\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "pamctc:locations/folders",
+			"id": "44095708-c662cebe-d175-4b5b-b837-eaa8b5200655",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://mun-esx6-ux.global.avidww.com/pamctc/locations/folders/%2F?offset=0&limit=25",
+					"protocol": "https",
+					"host": [
+						"mun-esx6-ux",
+						"global",
+						"avidww",
+						"com"
+					],
+					"path": [
+						"pamctc",
+						"locations",
+						"folders",
+						"%2F"
+					],
+					"query": [
+						{
+							"key": "offset",
+							"value": "0"
+						},
+						{
+							"key": "limit",
+							"value": "25"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "https://mun-esx6-ux.global.avidww.com/pamctc/locations/folders/%2FSent%20to%20Playback%2F?offset=0&limit=25",
+			"id": "44095708-a12474c4-b78b-4827-9d41-fff56538ba67",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"common\": {\r\n        \"name\": \"New Folder\"\r\n    }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://mun-esx6-ux.global.avidww.com/pamctc/locations/folders/%2FSent%20to%20Playback%2F?offset=0&limit=25",
+					"protocol": "https",
+					"host": [
+						"mun-esx6-ux",
+						"global",
+						"avidww",
+						"com"
+					],
+					"path": [
+						"pamctc",
+						"locations",
+						"folders",
+						"%2FSent%20to%20Playback%2F"
+					],
+					"query": [
+						{
+							"key": "offset",
+							"value": "0"
+						},
+						{
+							"key": "limit",
+							"value": "25"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
