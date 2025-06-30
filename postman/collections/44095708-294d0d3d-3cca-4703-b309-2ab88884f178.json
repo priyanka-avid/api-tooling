@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "44095708-294d0d3d-3cca-4703-b309-2ab88884f178",
-		"name": "PM+ CTMS-Get Children",
+		"name": "PM+ CTMS Get Children",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
